@@ -1,27 +1,10 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
-#include <cctype>
-#include "list.h"
-
-void parse_message(char *text, struct list *l, char *keyword);
-void parse_messages(FILE *input, char *keyword);
-
-/* Helper functions */
-
-/* Checks that character given is '0' to '9'. */
-bool 
-is_int(char c) 
-{
-    if (c - '0' > 9) 
-        return false;
-    if (c - '0' < 0)
-        return false;
-   
-    return true;   
-}
+#include "parser.h"
+#include "util/util.h"
 
 /* Checks that the given parameter string has the same
    length and is the same with the flag. */
@@ -33,72 +16,6 @@ check_flag(char *param, const char *flag)
     if (strncmp(param, flag, slen) == 0) 
         return true;
     return false;    
-}
-
-/* Lower-case entire string. */
-void 
-to_lower(char *str)
-{
-    int slen = strlen(str);
-    for (int i = 0; i < slen; i++) {
-        if (str[i] - 'A' >= 0 && str[i] - 'Z' <= 0)
-            str[i] = tolower(str[i]);
-    }    
-}
-
-/* Non case-sensitive substring search. */
-bool
-str_cont(char *string, char *sub)
-{  
-    to_lower(string);
-    return (strstr(string, sub) != NULL);
-}
-
-/* Parses one message and adds to the list of counters. */
-void
-parse_message(char *text, struct list *l, char *keyword)
-{
-    char *name;
-    char *message;
-    
-    /* Check text contains a date. */
-    if (strlen(text) < 5) { return; }
-    if (!(is_int(text[0]) && is_int(text[1]) && is_int(text[3]) && is_int(text[4]))) { return; }
-    if (strstr(text, "-") == NULL) { return; }
-    
-    name = strtok(text, "-");               /* Name points to date. */
-    name = strtok(NULL, "-");               /* Name points to name and message. */
-    while (name[0] == ' ') { name++; }
-    if (strstr(name, ":") == NULL) { return; }
-    name = strtok(name, ":");               /* Name points to name and excludes message. */
-    if(keyword==NULL){
-        char *new_name = (char *) malloc(strlen(name));
-        strcpy(new_name, name);
-        list_add(l, new_name);
-    } else {
-        message = strtok(NULL, ":");
-        if(str_cont(message, keyword)){ /* Message contains keyword. */
-            char *new_name = (char *) malloc(strlen(name));
-            strcpy(new_name, name);
-            list_add(l, new_name);
-        }    
-    }
-} 
-
-/* Parses a whole file of messages. */
-void 
-parse_messages(FILE *input, char *keyword, bool sort)
-{
-    struct list *l = list_init();
-    char *text = (char *) malloc(500);
-          
-    while (fgets(text, 500, input) != NULL) {
-        parse_message(text, l, keyword);
-    }
-    if (sort) 
-        list_sort(l);
-    list_print(l);
-    list_free(l);    
 }
 
 int 
@@ -164,8 +81,8 @@ main(int argc, char **argv)
         }
     }   
 
+	/* Prints total message count. */
     if (total_msg) {    
-        /* Prints total message count. */
         printf("Total messages:\n");
         parse_messages(input, NULL, sort);
         printf("\n");
