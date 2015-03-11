@@ -29,16 +29,23 @@ Person 3 : 100
 
 Person 2 : 70
 
+
+
+
 parser [filename] [OPTION]...
 
 -a, --all
+
         parses every message in the conversation log
 
 -k, --keyword [KEYWORD]...
+
         parses the messages that contain the keyword only
 
 -m, --media
+
         parses messages that contain media (i.e. photos)
 
 -s, --sort
+
         sorts the results by message count in descending order
